@@ -700,10 +700,10 @@ document.addEventListener('keydown', e => { if(e.key==='Escape'){ toggleMenu(fal
 })();
 
 /* ══════════════════════════════════════════════════════════════
-   SCRATCH CARD ENGINE
+   SCRATCH CARD ENGINE (UPDATED 🎮 + BUG FIXES)
 ══════════════════════════════════════════════════════════════ */
 function initScratch(){
-  const REVEAL_AT = 0.44;
+  const REVEAL_AT = 0.45; // 45% scratched reveals it
   const BRUSH     = 24;
   const COLORS    = ['#8b5cf6','#a78bfa','#e879f9','#6366f1','#c4b5fd','#fff','#f0abfc','#818cf8','#d946ef'];
 
@@ -725,19 +725,21 @@ function initScratch(){
   const pct  = document.getElementById('scPct');
   const cpB  = document.getElementById('scCp');
   const ctx  = cv.getContext('2d');
-  let W,H,scratching=false,revealed=false,lastCheck=0;
+  let W = 0, H = 0, scratching=false, revealed=false, lastCheck=0;
 
   bd.classList.add('on');
   xBtn.classList.add('on');
   card.classList.add('on');
 
   function resize(){
-    const r = card.getBoundingClientRect();
-    W = cv.width  = Math.round(r.width);
-    H = cv.height = Math.round(r.height);
-    if(!revealed) drawLayer();
+    // Use offsetWidth to get exact pixel size, preventing animation-scale bugs
+    W = cv.width = cv.offsetWidth;
+    H = cv.height = cv.offsetHeight;
+    if(!revealed && W > 0 && H > 0) drawLayer();
   }
-  resize();
+  
+  // Wait a split second for the modal animation to finish before sizing
+  setTimeout(resize, 100);
   window.addEventListener('resize', resize);
 
   function drawLayer(){
@@ -746,20 +748,24 @@ function initScratch(){
     g.addColorStop(0,'#0b1550'); g.addColorStop(.4,'#0f1e70');
     g.addColorStop(.75,'#0c1a60'); g.addColorStop(1,'#09134c');
     ctx.fillStyle=g; rr(0,0,W,H,18); ctx.fill();
+    
     /* Sheen */
     const s=ctx.createLinearGradient(0,0,W,H*.5);
     s.addColorStop(0,'rgba(255,255,255,0)'); s.addColorStop(.5,'rgba(99,102,241,.07)'); s.addColorStop(1,'rgba(255,255,255,0)');
     ctx.fillStyle=s; rr(0,0,W,H,18); ctx.fill();
+    
     /* Border */
     ctx.strokeStyle='rgba(99,102,241,.45)'; ctx.lineWidth=1.5;
     rr(1,1,W-2,H-2,17); ctx.stroke();
-    /* Joystick grid */
+    
+    /* Gamepad 🎮 background pattern */
     [{x:.09,y:.12,s:24},{x:.30,y:.08,s:19},{x:.56,y:.10,s:23},{x:.80,y:.12,s:21},{x:.95,y:.06,s:15},
      {x:.19,y:.38,s:21},{x:.47,y:.34,s:19},{x:.73,y:.37,s:23},{x:.04,y:.37,s:17},
      {x:.07,y:.65,s:19},{x:.33,y:.67,s:23},{x:.62,y:.69,s:19},{x:.88,y:.65,s:21},
      {x:.18,y:.87,s:17},{x:.48,y:.84,s:19},{x:.78,y:.86,s:17},
      {x:.25,y:.23,s:6},{x:.68,y:.23,s:6},{x:.42,y:.52,s:6},{x:.88,y:.47,s:6}
     ].forEach(p=>{ ctx.save(); ctx.translate(p.x*W,p.y*H); p.s>=14?joy(p.s):dot(p.s); ctx.restore(); });
+    
     /* Centre label */
     ctx.save(); ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.font='700 11px "Orbitron",monospace';
@@ -768,38 +774,70 @@ function initScratch(){
     ctx.fillStyle=tg; ctx.fillText('\u2736  SCRATCH ME  \u2736',W/2,H/2); ctx.restore();
   }
 
+  /* NEW 🎮 GAMEPAD SHAPE */
   function joy(s){
     ctx.save();
-    ctx.strokeStyle='rgba(255,255,255,.26)'; ctx.fillStyle='rgba(255,255,255,.05)'; ctx.lineWidth=1.1;
-    ctx.beginPath(); ctx.ellipse(0,s*.32,s*.52,s*.19,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(-s*.08,s*.28); ctx.lineTo(-s*.07,-s*.10);
-    ctx.bezierCurveTo(-s*.07,-s*.38,s*.07,-s*.38,s*.07,-s*.10);
-    ctx.lineTo(s*.08,s*.28); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.arc(0,-s*.30,s*.20,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='rgba(255,255,255,.2)';
-    ctx.beginPath(); ctx.arc(0,-s*.30,s*.07,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,.12)';
-    ctx.beginPath(); ctx.ellipse(0,s*.32,s*.28,s*.09,0,0,Math.PI*2); ctx.stroke();
+    ctx.strokeStyle='rgba(255,255,255,.35)'; ctx.fillStyle='rgba(255,255,255,.08)'; ctx.lineWidth=1.5;
+    
+    // Pill shape for gamepad shell
+    ctx.beginPath();
+    ctx.arc(-s*.28, 0, s*.26, Math.PI/2, Math.PI*1.5);
+    ctx.arc(s*.28, 0, s*.26, Math.PI*1.5, Math.PI/2);
+    ctx.closePath();
+    ctx.fill(); ctx.stroke();
+    
+    // Left D-pad (+)
+    ctx.fillStyle='rgba(255,255,255,.3)';
+    ctx.fillRect(-s*.42, -s*.04, s*.22, s*.08);
+    ctx.fillRect(-s*.35, -s*.11, s*.08, s*.22);
+    
+    // Right Action buttons (4 dots)
+    ctx.beginPath(); ctx.arc(s*.21, -s*.07, s*.045, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(s*.37, -s*.07, s*.045, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(s*.29, -s*.15, s*.045, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.arc(s*.29, 0, s*.045, 0, 7); ctx.fill();
+    
     ctx.restore();
   }
+  
   function dot(s){ ctx.fillStyle='rgba(99,102,241,.3)'; ctx.beginPath(); ctx.arc(0,0,s/2,0,Math.PI*2); ctx.fill(); }
   function rr(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.arcTo(x+w,y,x+w,y+r,r); ctx.lineTo(x+w,y+h-r); ctx.arcTo(x+w,y+h,x+w-r,y+h,r); ctx.lineTo(x+r,y+h); ctx.arcTo(x,y+h,x,y+h-r,r); ctx.lineTo(x,y+r); ctx.arcTo(x,y,x+r,y,r); ctx.closePath(); }
 
   function scratch(x,y){ ctx.globalCompositeOperation='destination-out'; ctx.beginPath(); ctx.arc(x,y,BRUSH,0,Math.PI*2); ctx.fill(); ctx.globalCompositeOperation='source-over'; }
   function getXY(e){ const r=cv.getBoundingClientRect(); if(e.touches) return {x:e.touches[0].clientX-r.left,y:e.touches[0].clientY-r.top}; return {x:e.clientX-r.left,y:e.clientY-r.top}; }
-  function countPct(){ const d=ctx.getImageData(0,0,W,H).data; let tot=0,gone=0; for(let i=3;i<d.length;i+=4){ tot++; if(d[i]<128) gone++; } return gone/(tot||1); }
+  
+  function countPct(){ 
+    if(W === 0 || H === 0) return 0; // Prevent instant-reveal bug
+    const d = ctx.getImageData(0,0,W,H).data; 
+    let tot=0, gone=0; 
+    // Step by 16 to count faster on mobile without freezing
+    for(let i=3; i<d.length; i+=16){ 
+      tot++; 
+      if(d[i]<128) gone++; 
+    } 
+    return tot > 0 ? (gone/tot) : 0; 
+  }
 
   function onMove(e){
-    if(!scratching||revealed) return; e.preventDefault();
-    const p=getXY(e); scratch(p.x,p.y);
-    const now=Date.now();
-    if(now-lastCheck>80){
-      lastCheck=now;
-      const v=countPct(), d=Math.min(100,Math.round(v*100));
-      fill.style.width=d+'%'; pct.textContent=d+'%';
-      if(v>=REVEAL_AT&&!revealed){ revealed=true; hint.classList.add('gone'); setTimeout(eraseAll,220); setTimeout(confetti,520); }
+    if(!scratching || revealed || W === 0) return; 
+    e.preventDefault();
+    const p = getXY(e); scratch(p.x,p.y);
+    const now = Date.now();
+    // Only check progress every 100ms to keep it buttery smooth
+    if(now - lastCheck > 100){
+      lastCheck = now;
+      const v = countPct(), d = Math.min(100, Math.round(v * 100));
+      fill.style.width = d + '%'; 
+      pct.textContent = d + '%';
+      if(v >= REVEAL_AT && !revealed){ 
+        revealed=true; 
+        hint.classList.add('gone'); 
+        setTimeout(eraseAll, 220); 
+        setTimeout(confetti, 520); 
+      }
     }
   }
+  
   function eraseAll(){ ctx.globalCompositeOperation='destination-out'; ctx.fillStyle='rgba(0,0,0,1)'; rr(0,0,W,H,18); ctx.fill(); ctx.globalCompositeOperation='source-over'; fill.style.width='100%'; pct.textContent='100%'; }
 
   cv.addEventListener('mousedown',e=>{scratching=true;onMove(e)});
@@ -835,7 +873,7 @@ function initScratch(){
   bd.addEventListener('click', e=>{ if(e.target===bd) close(); });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') close(); },{once:true});
 }
-
+  
 function closeScratch(){ const bd=document.getElementById('scBd'); if(bd&&bd.classList.contains('on')){ document.getElementById('scBd').classList.remove('on'); document.getElementById('scX').classList.remove('on'); const c=document.getElementById('scCard'); c.classList.remove('on'); c.style.display='none'; } }
 </script>
 </body>
