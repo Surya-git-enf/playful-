@@ -535,7 +535,7 @@
     text-shadow: 0 0 12px rgba(0,234,255,0.7);
   }
 
-  /* NEW SUCCESS MODAL DESIGN */
+  /* NEW SUCCESS MODAL DESIGN (Button Removed) */
   .success-modal {
     position: fixed;
     inset: 0;
@@ -628,36 +628,8 @@
     margin-bottom: 28px;
   }
 
-  /* DIRECT GMAIL BUTTON */
-  .gmail-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 16px 20px;
-    border-radius: 14px;
-    background: linear-gradient(90deg, var(--playful-orange), #ff9500);
+  .success-modal-card strong {
     color: #fff;
-    text-decoration: none;
-    font-family: 'Space Mono', monospace;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.88rem;
-    box-shadow: 0 10px 30px rgba(255,122,0,0.25);
-    transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease;
-    position: relative;
-    z-index: 1;
-  }
-
-  .gmail-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 35px rgba(255,122,0,0.4);
-  }
-
-  .gmail-btn:active {
-    transform: translateY(1px);
-    box-shadow: 0 5px 20px rgba(255,122,0,0.4);
   }
 
   .signin-toast {
@@ -797,17 +769,6 @@
           </div>
 
           <div class="input-group password-group">
-            <input type="password" id="su-password" class="auth-input" placeholder=" " required autocomplete="new-password">
-            <label for="su-password" class="floating-label">Password</label>
-            <button type="button" class="password-toggle" data-target="su-password" aria-label="Show password">
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </button>
-          </div>
-
-          <div class="input-group password-group">
             <input type="password" id="su-confirm" class="auth-input" placeholder=" " required autocomplete="new-password">
             <label for="su-confirm" class="floating-label">Confirm Password</label>
             <button type="button" class="password-toggle" data-target="su-confirm" aria-label="Show password">
@@ -836,17 +797,13 @@
       <span class="success-icon">🎉</span>
       <h2>Congratulations!</h2>
       <p>
-        You won a mystery scratch card!<br>
-        Verify your email now to enter the engine and reveal your reward.
+        You won a mystery scratch card! We've sent a magic link to your email.<br><br>
+        <strong>Check your inbox (and spam folder) to verify your account and reveal your reward.</strong>
       </p>
       
-      <a href="https://mail.google.com/" target="_blank" class="gmail-btn">
-        Verify Email & See Reward
-      </a>
-      
-      <p style="margin-top: 22px; font-size: 0.75rem; color: rgba(255,255,255,0.3); font-family: 'Space Mono', monospace;">
-        Checking your inbox will open in a new tab.
-      </p>
+      <button id="closeSuccessBtn" class="liquid-btn" style="margin-top: 10px;">
+        <span class="btn-label">Got It!</span>
+      </button>
     </div>
   </div>
 
@@ -864,6 +821,7 @@
     const siError = document.getElementById('si-error');
     const suError = document.getElementById('su-error');
     const successModal = document.getElementById('successModal');
+    const closeSuccessBtn = document.getElementById('closeSuccessBtn');
     const signInBtn = document.getElementById('signInBtn');
     const signUpBtn = document.getElementById('signUpBtn');
     const signinToast = document.getElementById('signinToast');
@@ -1051,6 +1009,12 @@
 
     document.addEventListener('DOMContentLoaded', bootAuthGate);
 
+    // Let the user dismiss the success modal to go check their email
+    closeSuccessBtn.addEventListener('click', () => {
+      successModal.classList.remove('show');
+      successModal.setAttribute('aria-hidden', 'true');
+    });
+
     document.getElementById('signUpForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       clearErrors();
@@ -1076,9 +1040,23 @@
         return;
       }
 
-      setLoading(signUpBtn, true, 'Processing...');
+      setLoading(signUpBtn, true, 'Checking username...');
 
       try {
+        // Check if the username is already taken BEFORE signing up
+        const { data: isTaken, error: checkError } = await supabaseClient.rpc('check_username_taken', { uname: username });
+        
+        if (isTaken) {
+          suError.textContent = 'Username already exists. Please choose another.';
+          suError.style.display = 'block';
+          document.getElementById('su-username').classList.add('is-error');
+          setLoading(signUpBtn, false, 'Sign Up for Free');
+          return; 
+        }
+
+        setLoading(signUpBtn, true, 'Processing...');
+
+        // Wait for Supabase to successfully create the user
         const { error } = await supabaseClient.auth.signUp({
           email,
           password,
@@ -1087,6 +1065,7 @@
           }
         });
 
+        // If there's an error (like a fake email or rate limit), it stops here.
         if (error) {
           suError.textContent = error.message;
           suError.style.display = 'block';
@@ -1097,13 +1076,11 @@
         // FLAG SET HERE SO WAIT.HTML SHOWS SCRATCH CARD LATER
         sessionStorage.setItem('playful_new', '1');
 
-        // SHOW THE MODAL WITH GMAIL BUTTON AND CONFETTI
+        // SHOW THE MODAL WITH GOT IT BUTTON AND CONFETTI
         successModal.classList.add('show');
         successModal.setAttribute('aria-hidden', 'false');
         launchConfetti();
         setLoading(signUpBtn, false, 'Sign Up for Free');
-
-        // Note: We removed the automatic 4-second redirect here so the modal stays open!
 
       } catch {
         suError.textContent = 'Something went wrong. Please try again.';
