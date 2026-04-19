@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -810,7 +811,8 @@
         <div class="panel-divider"></div>
         <p class="auth-subtitle">Stop Playing. Start Creating.</p>
 
- <div id="su-error" class="error-banner"></div>
+ 
+        <div id="su-error" class="error-banner"></div>
 
         <form id="signUpForm" novalidate>
           <div class="input-group">
@@ -1138,6 +1140,9 @@
           return;
         }
 
+        // FLAG SET HERE SO WAIT.HTML SHOWS SCRATCH CARD
+        sessionStorage.setItem('playful_new', '1');
+
         successMessage.innerHTML =
           'Your account has been created successfully.<br>' +
           'You are now on the waitlist. We’ll notify you as soon as we’re ready.';
@@ -1189,4 +1194,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
