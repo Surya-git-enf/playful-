@@ -535,16 +535,17 @@
     text-shadow: 0 0 12px rgba(0,234,255,0.7);
   }
 
+  /* NEW SUCCESS MODAL DESIGN */
   .success-modal {
     position: fixed;
     inset: 0;
     display: none;
     align-items: center;
     justify-content: center;
-    background: rgba(0,0,0,0.78);
+    background: rgba(0,0,0,0.85);
     z-index: 9999;
     padding: 24px;
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(12px);
   }
 
   .success-modal.show {
@@ -590,37 +591,10 @@
     to   { transform: scale(1) translateY(0); opacity: 1; }
   }
 
-  .modal-icon-wrap {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 16px;
-  }
-
-  .modal-icon-ring {
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    border: 2px solid rgba(0,234,255,0.25);
-    animation: ringPulse 2s ease-out infinite;
-  }
-
-  .modal-icon-ring2 {
-    position: absolute;
-    inset: -22px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(0,234,255,0.12);
-    animation: ringPulse 2s ease-out 0.4s infinite;
-  }
-
-  @keyframes ringPulse {
-    0%   { transform: scale(0.85); opacity: 0; }
-    50%  { opacity: 1; }
-    100% { transform: scale(1.3); opacity: 0; }
-  }
-
   .success-icon {
-    font-size: 3.4rem;
+    font-size: 3.8rem;
     display: block;
+    margin-bottom: 12px;
     animation: iconBounce 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
     position: relative;
     z-index: 1;
@@ -634,7 +608,7 @@
   .success-modal-card h2 {
     font-family: 'Instrument Serif', serif;
     font-style: italic;
-    font-size: 2.1rem;
+    font-size: 2.3rem;
     margin-bottom: 12px;
     letter-spacing: 0.02em;
     background: linear-gradient(135deg, #fff 0%, rgba(0,234,255,0.9) 100%);
@@ -648,44 +622,42 @@
   .success-modal-card p {
     color: rgba(255,255,255,0.72);
     line-height: 1.75;
-    font-size: 0.88rem;
+    font-size: 0.95rem;
     position: relative;
     z-index: 1;
+    margin-bottom: 28px;
   }
 
-  .countdown-bar-wrap {
-    margin-top: 22px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .countdown-label {
-    font-size: 0.68rem;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-bottom: 7px;
-  }
-
-  .countdown-bar {
-    height: 3px;
-    background: rgba(255,255,255,0.07);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .countdown-fill {
-    height: 100%;
+  /* DIRECT GMAIL BUTTON */
+  .gmail-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    background: linear-gradient(90deg, var(--neon-blue), var(--playful-orange));
-    border-radius: 99px;
-    transform-origin: left;
-    animation: drainBar 4s linear forwards;
+    padding: 16px 20px;
+    border-radius: 14px;
+    background: linear-gradient(90deg, var(--playful-orange), #ff9500);
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.88rem;
+    box-shadow: 0 10px 30px rgba(255,122,0,0.25);
+    transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s ease;
+    position: relative;
+    z-index: 1;
   }
 
-  @keyframes drainBar {
-    from { transform: scaleX(1); }
-    to   { transform: scaleX(0); }
+  .gmail-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(255,122,0,0.4);
+  }
+
+  .gmail-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 5px 20px rgba(255,122,0,0.4);
   }
 
   .signin-toast {
@@ -765,7 +737,7 @@
   <div class="orb orb-3"></div>
 
   <a href="index.html" class="auth-brand">
-    <img src="./1000932154.jpg" alt="Playful" class="auth-logo" onerror="this.src='./logo.png'">
+    <img src="https://zwpmbouyvjrziaxoexyl.supabase.co/storage/v1/object/public/playful-bucket/logo.png" alt="Playful" class="auth-logo" onerror="this.src='./logo.png'">
     <span class="auth-name">Playful</span>
   </a>
 
@@ -811,7 +783,6 @@
         <div class="panel-divider"></div>
         <p class="auth-subtitle">Stop Playing. Start Creating.</p>
 
- 
         <div id="su-error" class="error-banner"></div>
 
         <form id="signUpForm" novalidate>
@@ -862,22 +833,20 @@
 
   <div id="successModal" class="success-modal" aria-hidden="true">
     <div class="success-modal-card">
-      <div class="modal-icon-wrap">
-        <div class="modal-icon-ring"></div>
-        <div class="modal-icon-ring2"></div>
-        <span class="success-icon">🎉</span>
-      </div>
-      <h2>Congratulations, Creator!</h2>
-      <p id="successMessage">
-        Your account has been created successfully.<br>
-        You are now on the waitlist. We’ll notify you as soon as we’re ready.
+      <span class="success-icon">🎉</span>
+      <h2>Congratulations!</h2>
+      <p>
+        You won a mystery scratch card!<br>
+        Verify your email now to enter the engine and reveal your reward.
       </p>
-      <div class="countdown-bar-wrap">
-        <div class="countdown-label">Redirecting in 4s…</div>
-        <div class="countdown-bar">
-          <div class="countdown-fill" id="countdownFill"></div>
-        </div>
-      </div>
+      
+      <a href="https://mail.google.com/" target="_blank" class="gmail-btn">
+        Verify Email & See Reward
+      </a>
+      
+      <p style="margin-top: 22px; font-size: 0.75rem; color: rgba(255,255,255,0.3); font-family: 'Space Mono', monospace;">
+        Checking your inbox will open in a new tab.
+      </p>
     </div>
   </div>
 
@@ -895,11 +864,9 @@
     const siError = document.getElementById('si-error');
     const suError = document.getElementById('su-error');
     const successModal = document.getElementById('successModal');
-    const successMessage = document.getElementById('successMessage');
     const signInBtn = document.getElementById('signInBtn');
     const signUpBtn = document.getElementById('signUpBtn');
     const signinToast = document.getElementById('signinToast');
-    const countdownFill = document.getElementById('countdownFill');
 
     let supabaseClient = null;
     const SUPABASE_URL = 'https://zwpmbouyvjrziaxoexyl.supabase.co';
@@ -1036,20 +1003,6 @@
       }, 250);
     }
 
-    function showSuccessAndRedirect() {
-      successModal.classList.add('show');
-      successModal.setAttribute('aria-hidden', 'false');
-      launchConfetti();
-
-      countdownFill.style.animation = 'none';
-      void countdownFill.offsetWidth;
-      countdownFill.style.animation = 'drainBar 4s linear forwards';
-
-      setTimeout(() => {
-        window.location.href = 'wait.html';
-      }, 4000);
-    }
-
     function showSignInSuccess() {
       signinToast.classList.add('show');
       setTimeout(() => {
@@ -1137,21 +1090,24 @@
         if (error) {
           suError.textContent = error.message;
           suError.style.display = 'block';
+          setLoading(signUpBtn, false, 'Sign Up for Free');
           return;
         }
 
-        // FLAG SET HERE SO WAIT.HTML SHOWS SCRATCH CARD
+        // FLAG SET HERE SO WAIT.HTML SHOWS SCRATCH CARD LATER
         sessionStorage.setItem('playful_new', '1');
 
-        successMessage.innerHTML =
-          'Your account has been created successfully.<br>' +
-          'You are now on the waitlist. We’ll notify you as soon as we’re ready.';
+        // SHOW THE MODAL WITH GMAIL BUTTON AND CONFETTI
+        successModal.classList.add('show');
+        successModal.setAttribute('aria-hidden', 'false');
+        launchConfetti();
+        setLoading(signUpBtn, false, 'Sign Up for Free');
 
-        showSuccessAndRedirect();
+        // Note: We removed the automatic 4-second redirect here so the modal stays open!
+
       } catch {
         suError.textContent = 'Something went wrong. Please try again.';
         suError.style.display = 'block';
-      } finally {
         setLoading(signUpBtn, false, 'Sign Up for Free');
       }
     });
@@ -1194,4 +1150,4 @@
     });
   </script>
 </body>
-  </html>
+</html>
