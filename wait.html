@@ -611,6 +611,7 @@ footer{
 #sc-cv{
   position:absolute;inset:0;border-radius:18px;
   touch-action:none;display:block;cursor:crosshair;
+  z-index: 10; /* FIXED: forces the canvas above the 50% text so you can scratch it! */
 }
 
 /* hint */
@@ -620,6 +621,7 @@ footer{
   letter-spacing:.17em;text-transform:uppercase;white-space:nowrap;
   animation:sc-hint 1.6s ease-in-out infinite;
   transition:opacity .4s;pointer-events:none;
+  z-index: 11; /* FIXED: Keeps hint visible above canvas */
 }
 .sc-hint.gone{opacity:0}
 
@@ -647,6 +649,7 @@ footer{
 
 <div id="app">
 
+<!-- NAV -->
 <nav>
   <a class="brand" href="wait.html">
     <img class="brand-img" src="./logo.png" alt="Playful" onerror="this.style.display='none'">
@@ -670,6 +673,7 @@ footer{
       <div class="pm-email" id="menuEmail">—</div>
       <div class="pm-rule"></div>
 
+      <!-- Plan row: "Plan" label | value from DB -->
       <div class="pm-row">
         <span class="pm-label">Plan</span>
         <span class="pm-val" id="menuPlan">—</span>
@@ -681,6 +685,7 @@ footer{
 
       <div class="pm-rule"></div>
 
+      <!-- Credits + bar -->
       <div class="credits-block">
         <div class="credits-hd">
           <span class="pm-label">Credits</span>
@@ -690,6 +695,7 @@ footer{
           <div class="credits-fill" id="menuCreditsFill" style="width:0%"></div>
         </div>
       </div>
+
       <button id="logoutBtn" class="pm-logout">
         <svg viewBox="0 0 24 24"><path d="M10 17H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h5"/><path d="M14 7l5 5-5 5"/><path d="M19 12H9"/></svg>
         SIGN OUT
@@ -697,7 +703,7 @@ footer{
     </div>
   </div>
 </nav>
-
+<!-- GREETING -->
 <div class="page">
   <div class="greeting">
     <div class="eyebrow"><span class="eyebrow-dot"></span> You're on the list</div>
@@ -715,6 +721,7 @@ footer{
 
 <div class="divider"></div>
 
+<!-- STATUS -->
 <div class="page">
   <div class="status-wrap">
     <div class="sec-label">Your status</div>
@@ -733,6 +740,7 @@ footer{
   </div>
 </div>
 
+<!-- VERTICAL USER SCROLL -->
 <div class="page">
   <div class="users-wrap">
     <div class="sec-label">
@@ -751,11 +759,15 @@ footer{
 
 <div class="divider"></div>
 
+<!-- FOOTER -->
 <footer>
   <p class="foot-text">Built with 💜 by <strong>PLAYFUL</strong> &nbsp;·&nbsp; Turns words into worlds &nbsp;·&nbsp; © 2025</p>
 </footer>
 
-</div><div class="pricing-modal" id="pricingModal">
+</div><!-- #app -->
+
+<!-- ══ PRICING MODAL ══════════════════════════ -->
+<div class="pricing-modal" id="pricingModal">
   <div class="pricing-bd" id="pricingBD"></div>
   <div class="pricing-shell">
     <div class="pricing-head">
@@ -767,6 +779,7 @@ footer{
     </div>
 
     <div class="pricing-grid">
+      <!-- Starter -->
       <div class="plan-card">
         <div class="plan-tag">🪨 Free forever</div>
         <div class="plan-price">$0<sub>/mo</sub></div>
@@ -783,6 +796,7 @@ footer{
         <button class="plan-btn dis" disabled>Current Plan</button>
       </div>
 
+      <!-- Creator -->
       <div class="plan-card featured">
         <div class="plan-pop">Popular</div>
         <div class="plan-tag">⚡ Sweet spot</div>
@@ -800,6 +814,7 @@ footer{
         <button class="plan-btn violet-btn pricing-action">Be Creator</button>
       </div>
 
+      <!-- Studio -->
       <div class="plan-card">
         <div class="plan-tag">🌟 Maximum power</div>
         <div class="plan-price">$49<sub>/mo</sub></div>
@@ -819,6 +834,7 @@ footer{
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-box">
     <span class="toast-icon">⏳</span>
@@ -828,6 +844,7 @@ footer{
   </div>
 </div>
 
+<!-- ══ SCRATCH CARD ══ -->
 <div class="sc-bd"  id="scBd"></div>
 <button class="sc-x" id="scX" aria-label="Close">✕</button>
 <div class="sc-pop"  id="scPop"></div>
@@ -1001,7 +1018,7 @@ async function loadWaitlist(){
   }
 }
 
-/* ══ SEAMLESS VERTICAL SCROLL — JS-driven, no CSS animation gaps ══
+  /* ══ SEAMLESS VERTICAL SCROLL — JS-driven, no CSS animation gaps ══
    Both columns scroll upward continuously.
    Col A is slightly slower than Col B for a parallax feel.
    Items are tripled so there is always enough content to loop.   */
@@ -1034,7 +1051,8 @@ function buildVerticalScroll(names){
     startScroll(trackB, rawB.length, 16);   /* 16s per loop — Col B (faster) */
   }));
 }
-  function startScroll(track, itemCount, speedSecs){
+
+function startScroll(track, itemCount, speedSecs){
   /* height of ONE set (1/3 of total tripled content) */
   const oneSetH = track.scrollHeight / 3;
   if(oneSetH <= 0) return;
@@ -1079,8 +1097,15 @@ document.addEventListener('keydown', e => { if(e.key==='Escape'){ toggleMenu(fal
     await Promise.all([loadProfile(), loadWaitlist()]);
     reveal();
 
-    /* Show scratch card (Delay added so page content renders first) */
-    setTimeout(initScratch, 600);
+    /* Show scratch card if new signup OR if testing via URL (?new=1) */
+    const urlParams = new URLSearchParams(location.search);
+    if(sessionStorage.getItem('playful_new') === '1' || urlParams.get('new') === '1'){
+      sessionStorage.removeItem('playful_new');
+      history.replaceState(null, '', location.pathname); /* clean URL */
+      
+      /* small delay so page content renders first */
+      setTimeout(initScratch, 600);
+    }
 
   } catch{
     window.location.replace('auth.html');
@@ -1131,7 +1156,7 @@ function initScratch(){
     const newW = card.clientWidth;
     const newH = card.clientHeight;
     
-    // FIX: Retry dynamically if dimensions are strictly 0 (not rendered yet)
+    // Retry dynamically if dimensions are strictly 0 (not rendered yet)
     if(newW === 0 || newH === 0) {
       requestAnimationFrame(resize); 
       return; 
@@ -1367,3 +1392,4 @@ function closeScratch(){
 </script>
 </body>
 </html>
+
