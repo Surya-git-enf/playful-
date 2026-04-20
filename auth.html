@@ -191,7 +191,7 @@
 
   .card {
     width: 100%;
-    min-height: 720px;
+    min-height: 640px;
     position: relative;
     transform-style: preserve-3d;
     transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
@@ -535,7 +535,6 @@
     text-shadow: 0 0 12px rgba(0,234,255,0.7);
   }
 
-  /* NEW SUCCESS MODAL DESIGN (Button Removed) */
   .success-modal {
     position: fixed;
     inset: 0;
@@ -693,7 +692,7 @@
     body { padding: 84px 16px 24px; }
     .auth-brand { top: 18px; left: 16px; }
     .auth-name { font-size: 1.9rem; }
-    .card { min-height: 700px; }
+    .card { min-height: 620px; }
     .card-face { padding: 30px 22px 28px; }
     .auth-title { font-size: 2.4rem; }
     .signin-toast { top: auto; bottom: 24px; right: 16px; left: 16px; max-width: none; }
@@ -768,13 +767,14 @@
             <label for="su-email" class="floating-label">Email address</label>
           </div>
 
+          <!-- FIXED: ADDED THE MISSING PASSWORD FIELD -->
           <div class="input-group password-group">
             <input type="password" id="su-password" class="auth-input" placeholder=" " required autocomplete="new-password">
             <label for="su-password" class="floating-label">Password</label>
             <button type="button" class="password-toggle" data-target="su-password" aria-label="Show password">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
+           <circle cx="12" cy="12" r="3"></circle>
               </svg>
             </button>
           </div>
@@ -916,7 +916,6 @@
       button.innerHTML = isHidden ? EYE_OFF_SVG : EYE_SVG;
       button.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
     }
-
     document.querySelectorAll('.password-toggle').forEach(btn => {
       btn.innerHTML = EYE_SVG;
       btn.addEventListener('click', () => togglePasswordVisibility(btn));
